@@ -1,5 +1,5 @@
 {
-  "name": "tiktok-bridge",
+  "name": "tiktok-live-dance",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.21.0",
-    "tiktok-live-connector": "^1.2.3"
+    "express": "^4.19.2",
+    "tiktok-live-connector": "^2.4.4"
   }
 }
