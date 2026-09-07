@@ -39,6 +39,9 @@ let lastPollTime = Date.now();
 // 🎛️ STATE DJ MODE (Roblox <-> Web HTML)
 let isDjActive = false;
 
+// 🌸 STATE PERFUME TRIGGER (Roblox/Web -> Web ganti lagu berikutnya)
+let pendingMusicTrigger = { shouldSkip: false, user: "" };
+
 // 🎯 5 ID RESMI TIKTOK ANDA
 const OFFICIAL_GIFTS = {
     "6064": { name: "GG", coins: 1 },
@@ -243,6 +246,15 @@ async function connectToTikTok(username, isReconnect = false) {
         } else {
             if (rawNameLower.includes("rosa")) { diamonds = 10; giftName = "Rosa"; giftId = "8913"; }
             else if (rawNameLower.includes("doughnut") || rawNameLower.includes("donut")) { diamonds = 30; giftName = "Doughnut"; giftId = "5879"; }
+            else if (rawNameLower.includes("perfume") || rawNameLower.includes("parfum") || giftId === "5658") {
+                giftId = "5658"; giftName = "Perfume"; diamonds = 20;
+            }
+        }
+
+        // 🌸 PERFUME 20 COIN (5658) -> trigger ganti musik & dance di web
+        if (giftId === "5658") {
+            pendingMusicTrigger = { shouldSkip: true, user: ttUser };
+            console.log(`🌸 [PERFUME 20] @${ttUser} -> trigger next music + dance`);
         }
 
         // 🛡️ 2. GEMBOK SESI COMBO RESMI
@@ -384,6 +396,16 @@ app.post('/api/test-event', (req, res) => {
         userRobloxMap[eventData.tiktokUsername.toLowerCase()] = eventData.robloxUsername;
     }
 
+    // 🌸 kalau test event Perfume -> aktifkan trigger juga
+    if (eventData.type === 'gift') {
+        const gid = String(eventData.giftId || '');
+        const coins = Number(eventData.realCoins) || 0;
+        const gn = String(eventData.giftName || '').toLowerCase();
+        if (gid === '5658' || coins === 20 || gn.includes('perfume') || gn.includes('parfum')) {
+            pendingMusicTrigger = { shouldSkip: true, user: eventData.tiktokUsername || 'Sultan' };
+        }
+    }
+
     pushEvent(eventData);
     console.log(`🧪 [Web Test] ${eventData.type} ${eventData.giftName || ''} -> antrean Roblox`);
     res.json({ success: true });
@@ -394,6 +416,14 @@ app.post('/api/test-event', (req, res) => {
 // =========================================================================
 app.get('/api/dj-status', (req, res) => {
     res.json({ active: isDjActive });
+});
+
+// 🌸 PERFUME TRIGGER (Web polling untuk auto-next lagu)
+app.get('/api/music-trigger', (req, res) => {
+    res.json(pendingMusicTrigger);
+    if (pendingMusicTrigger.shouldSkip) {
+        pendingMusicTrigger = { shouldSkip: false, user: "" };
+    }
 });
 
 app.post('/api/dj-status', (req, res) => {
