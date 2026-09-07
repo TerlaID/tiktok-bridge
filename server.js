@@ -7,7 +7,12 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { TikTokLiveConnection } = require('tiktok-live-connector');
+
+// 🛡️ AMAN: Import fleksibel agar tidak crash "TikTokLiveConnection is not a constructor"
+const TikTokLiveLib = require('tiktok-live-connector');
+const TikTokLiveConnection = TikTokLiveLib.TikTokLiveConnection || 
+                                TikTokLiveLib.WebcastPushConnection || 
+                                (TikTokLiveLib.default && (TikTokLiveLib.default.TikTokLiveConnection || TikTokLiveLib.default.WebcastPushConnection));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
