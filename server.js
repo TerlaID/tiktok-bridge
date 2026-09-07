@@ -406,6 +406,17 @@ app.post('/api/test-event', (req, res) => {
         }
     }
 
+    // 💃 Command dance dari web -> pastikan format konsisten untuk Roblox
+    if (eventData.type === 'command' && eventData.action === 'dance') {
+        pushEvent({
+            type: 'command',
+            action: 'dance',
+            danceId: String(eventData.danceId || '')
+        });
+        console.log(`💃 [Web -> Roblox] Switch Dance ID: ${eventData.danceId}`);
+        return res.json({ success: true });
+    }
+
     pushEvent(eventData);
     console.log(`🧪 [Web Test] ${eventData.type} ${eventData.giftName || ''} -> antrean Roblox`);
     res.json({ success: true });
