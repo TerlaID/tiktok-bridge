@@ -36,6 +36,9 @@ let reconnectTimer = null;
 const MAX_RECONNECT_ATTEMPTS = 5;
 let lastPollTime = Date.now();
 
+// 🎛️ STATE DJ MODE (Roblox <-> Web HTML)
+let isDjActive = false;
+
 // 🎯 5 ID RESMI TIKTOK ANDA
 const OFFICIAL_GIFTS = {
     "6064": { name: "GG", coins: 1 },
@@ -368,6 +371,37 @@ app.get('/events', (req, res) => {
     const events = [...eventQueue];
     eventQueue = [];
     res.json({ success: true, isOnline: isConnected, events: events });
+});
+
+// =========================================================================
+// 🧪 TEST EVENT DARI WEB -> ANTREAN ROBLOX
+// =========================================================================
+app.post('/api/test-event', (req, res) => {
+    const eventData = req.body;
+    if (!eventData) return res.status(400).json({ success: false, error: "Data kosong" });
+
+    if (eventData.robloxUsername && eventData.tiktokUsername) {
+        userRobloxMap[eventData.tiktokUsername.toLowerCase()] = eventData.robloxUsername;
+    }
+
+    pushEvent(eventData);
+    console.log(`🧪 [Web Test] ${eventData.type} ${eventData.giftName || ''} -> antrean Roblox`);
+    res.json({ success: true });
+});
+
+// =========================================================================
+// 🎛️ STATUS DJ (Roblox POST start/end, Web GET polling)
+// =========================================================================
+app.get('/api/dj-status', (req, res) => {
+    res.json({ active: isDjActive });
+});
+
+app.post('/api/dj-status', (req, res) => {
+    if (req.body && typeof req.body.active === 'boolean') {
+        isDjActive = req.body.active;
+        console.log(`🎛️ [DJ STATUS] Mode DJ sekarang: ${isDjActive ? 'AKTIF' : 'MATI'}`);
+    }
+    res.json({ success: true, active: isDjActive });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
