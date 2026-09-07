@@ -40,7 +40,7 @@ let lastPollTime = Date.now();
 let isDjActive = false;
 
 // 🌸 STATE PERFUME TRIGGER (Roblox/Web -> Web ganti lagu berikutnya)
-let pendingMusicTrigger = { shouldSkip: false, user: "" };
+let pendingMusicTrigger = { shouldSkip: false, user: "", triggerTime: 0 };
 
 // 🎯 5 ID RESMI TIKTOK ANDA
 const OFFICIAL_GIFTS = {
@@ -253,7 +253,7 @@ async function connectToTikTok(username, isReconnect = false) {
 
         // 🌸 PERFUME 20 COIN (5658) -> trigger ganti musik & dance di web
         if (giftId === "5658") {
-            pendingMusicTrigger = { shouldSkip: true, user: ttUser };
+            pendingMusicTrigger = { shouldSkip: true, user: ttUser, triggerTime: Date.now() };
             console.log(`🌸 [PERFUME 20] @${ttUser} -> trigger next music + dance`);
         }
 
@@ -402,7 +402,7 @@ app.post('/api/test-event', (req, res) => {
         const coins = Number(eventData.realCoins) || 0;
         const gn = String(eventData.giftName || '').toLowerCase();
         if (gid === '5658' || coins === 20 || gn.includes('perfume') || gn.includes('parfum')) {
-            pendingMusicTrigger = { shouldSkip: true, user: eventData.tiktokUsername || 'Sultan' };
+            pendingMusicTrigger = { shouldSkip: true, user: eventData.tiktokUsername || 'Sultan', triggerTime: Date.now() };
         }
     }
 
